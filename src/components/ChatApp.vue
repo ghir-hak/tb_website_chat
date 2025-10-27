@@ -150,11 +150,17 @@ export default {
             // Try to parse as JSON first
             try {
               const data = JSON.parse(messageData);
-              this.addMessage(
-                data.message || data.text,
-                false,
-                data.username || "Anonymous"
-              );
+              // Don't show messages from the current user (prevent echo)
+              if (data.username && data.username !== this.username) {
+                this.addMessage(
+                  data.message || data.text,
+                  false,
+                  data.username
+                );
+              } else if (!data.username) {
+                // Show system messages or messages without username
+                this.addMessage(data.message || data.text, false, "System");
+              }
             } catch (jsonError) {
               // Handle plain text messages
               this.addMessage(messageData, false, "System");
@@ -215,11 +221,17 @@ export default {
             // Try to parse as JSON first
             try {
               const data = JSON.parse(messageData);
-              this.addMessage(
-                data.message || data.text,
-                false,
-                data.username || "Anonymous"
-              );
+              // Don't show messages from the current user (prevent echo)
+              if (data.username && data.username !== this.username) {
+                this.addMessage(
+                  data.message || data.text,
+                  false,
+                  data.username
+                );
+              } else if (!data.username) {
+                // Show system messages or messages without username
+                this.addMessage(data.message || data.text, false, "System");
+              }
             } catch (jsonError) {
               // Handle plain text messages
               this.addMessage(messageData, false, "System");
@@ -274,11 +286,17 @@ export default {
             // Try to parse as JSON first
             try {
               const data = JSON.parse(messageData);
-              this.addMessage(
-                data.message || data.text,
-                false,
-                data.username || "Anonymous"
-              );
+              // Don't show messages from the current user (prevent echo)
+              if (data.username && data.username !== this.username) {
+                this.addMessage(
+                  data.message || data.text,
+                  false,
+                  data.username
+                );
+              } else if (!data.username) {
+                // Show system messages or messages without username
+                this.addMessage(data.message || data.text, false, "System");
+              }
             } catch (jsonError) {
               // Handle plain text messages
               this.addMessage(messageData, false, "System");
@@ -367,15 +385,17 @@ export default {
 <style scoped>
 .chat-container {
   width: 100%;
-  max-width: 800px;
-  height: 600px;
+  max-width: 1200px;
+  height: 700px;
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   position: relative;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* Username Modal */
@@ -501,9 +521,9 @@ export default {
 
 .chat-messages {
   flex: 1;
-  padding: 20px;
+  padding: 24px;
   overflow-y: auto;
-  background: #fafafa;
+  background: linear-gradient(180deg, #fafafa 0%, #f0f2f5 100%);
 }
 
 .message {
@@ -517,12 +537,14 @@ export default {
 }
 
 .message-content {
-  max-width: 70%;
-  padding: 12px 16px;
-  border-radius: 18px;
+  max-width: 60%;
+  padding: 14px 18px;
+  border-radius: 20px;
   word-wrap: break-word;
   background: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-size: 15px;
+  line-height: 1.4;
 }
 
 .own-message .message-content {
