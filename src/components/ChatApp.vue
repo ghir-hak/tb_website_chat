@@ -1,12 +1,32 @@
 <template>
   <div class="chat-container">
+    <!-- Username Prompt Modal -->
+    <div v-if="!username" class="username-modal">
+      <div class="username-modal-content">
+        <h2>Welcome to Seguente Chat</h2>
+        <p>Please enter your username to start chatting:</p>
+        <input
+          v-model="tempUsername"
+          @keypress.enter="setUsername"
+          placeholder="Enter your username..."
+          maxlength="20"
+        />
+        <button @click="setUsername" :disabled="!tempUsername.trim()">
+          Join Chat
+        </button>
+      </div>
+    </div>
+
     <div class="chat-header">
       <h1>Seguente Chat</h1>
-      <div
-        class="connection-status"
-        :class="{ connected: isConnected, disconnected: !isConnected }"
-      >
-        {{ isConnected ? "Connected" : "Disconnected" }}
+      <div class="user-info">
+        <span class="username">{{ username }}</span>
+        <div
+          class="connection-status"
+          :class="{ connected: isConnected, disconnected: !isConnected }"
+        >
+          {{ isConnected ? "Connected" : "Disconnected" }}
+        </div>
       </div>
     </div>
 
@@ -52,7 +72,8 @@ export default {
       isConnected: false,
       messages: [],
       newMessage: "",
-      username: "User" + Math.floor(Math.random() * 1000),
+      username: "",
+      tempUsername: "",
     };
   },
   async mounted() {
@@ -114,13 +135,33 @@ export default {
           console.log("WebSocket connected");
         };
 
-        this.websocket.onmessage = (event) => {
+        this.websocket.onmessage = async (event) => {
           try {
-            const data = JSON.parse(event.data);
-            this.addMessage(data.message, false, data.username || "Anonymous");
+            let messageData;
+
+            // Handle blob data
+            if (event.data instanceof Blob) {
+              const text = await event.data.text();
+              messageData = text;
+            } else {
+              messageData = event.data;
+            }
+
+            // Try to parse as JSON first
+            try {
+              const data = JSON.parse(messageData);
+              this.addMessage(
+                data.message || data.text,
+                false,
+                data.username || "Anonymous"
+              );
+            } catch (jsonError) {
+              // Handle plain text messages
+              this.addMessage(messageData, false, "System");
+            }
           } catch (error) {
-            // Handle plain text messages
-            this.addMessage(event.data, false, "System");
+            console.error("Error processing WebSocket message:", error);
+            this.addMessage("Error processing message", false, "System");
           }
         };
 
@@ -159,17 +200,33 @@ export default {
           console.log("WebSocket connected (fallback)");
         };
 
-        this.websocket.onmessage = (event) => {
+        this.websocket.onmessage = async (event) => {
           try {
-            const data = JSON.parse(event.data);
-            this.addMessage(
-              data.message || data.text,
-              false,
-              data.username || "Anonymous"
-            );
+            let messageData;
+
+            // Handle blob data
+            if (event.data instanceof Blob) {
+              const text = await event.data.text();
+              messageData = text;
+            } else {
+              messageData = event.data;
+            }
+
+            // Try to parse as JSON first
+            try {
+              const data = JSON.parse(messageData);
+              this.addMessage(
+                data.message || data.text,
+                false,
+                data.username || "Anonymous"
+              );
+            } catch (jsonError) {
+              // Handle plain text messages
+              this.addMessage(messageData, false, "System");
+            }
           } catch (error) {
-            // Handle plain text messages
-            this.addMessage(event.data, false, "System");
+            console.error("Error processing WebSocket message:", error);
+            this.addMessage("Error processing message", false, "System");
           }
         };
 
@@ -202,17 +259,33 @@ export default {
           console.log("WebSocket connected (fallback)");
         };
 
-        this.websocket.onmessage = (event) => {
+        this.websocket.onmessage = async (event) => {
           try {
-            const data = JSON.parse(event.data);
-            this.addMessage(
-              data.message || data.text,
-              false,
-              data.username || "Anonymous"
-            );
+            let messageData;
+
+            // Handle blob data
+            if (event.data instanceof Blob) {
+              const text = await event.data.text();
+              messageData = text;
+            } else {
+              messageData = event.data;
+            }
+
+            // Try to parse as JSON first
+            try {
+              const data = JSON.parse(messageData);
+              this.addMessage(
+                data.message || data.text,
+                false,
+                data.username || "Anonymous"
+              );
+            } catch (jsonError) {
+              // Handle plain text messages
+              this.addMessage(messageData, false, "System");
+            }
           } catch (error) {
-            // Handle plain text messages
-            this.addMessage(event.data, false, "System");
+            console.error("Error processing WebSocket message:", error);
+            this.addMessage("Error processing message", false, "System");
           }
         };
 
@@ -234,8 +307,16 @@ export default {
       }
     },
 
+    setUsername() {
+      if (this.tempUsername.trim()) {
+        this.username = this.tempUsername.trim();
+        this.tempUsername = "";
+      }
+    },
+
     sendMessage() {
-      if (!this.newMessage.trim() || !this.isConnected) return;
+      if (!this.newMessage.trim() || !this.isConnected || !this.username)
+        return;
 
       const message = {
         text: this.newMessage,
@@ -294,6 +375,83 @@ export default {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  position: relative;
+}
+
+/* Username Modal */
+.username-modal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  border-radius: 12px;
+}
+
+.username-modal-content {
+  background: white;
+  padding: 40px;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  max-width: 400px;
+  width: 90%;
+}
+
+.username-modal-content h2 {
+  color: #333;
+  margin-bottom: 16px;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.username-modal-content p {
+  color: #666;
+  margin-bottom: 24px;
+  font-size: 16px;
+}
+
+.username-modal-content input {
+  width: 100%;
+  padding: 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 16px;
+  margin-bottom: 20px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.username-modal-content input:focus {
+  border-color: #667eea;
+}
+
+.username-modal-content button {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.username-modal-content button:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.username-modal-content button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .chat-header {
@@ -308,6 +466,20 @@ export default {
 .chat-header h1 {
   font-size: 24px;
   font-weight: 600;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.username {
+  font-size: 14px;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 6px 12px;
+  border-radius: 16px;
 }
 
 .connection-status {
