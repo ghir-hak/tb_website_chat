@@ -1,26 +1,51 @@
-# template
+# Seguente Chat
 
-[Live demo](http://vue-ycapvj5w5.g.tau.link)
+A simple Vue.js chat application with WebSocket communication, branded with 'Seguente'.
 
-## Project setup
-```
+## Features
+
+- Real-time messaging via WebSocket
+- Clean, modern UI with gradient design
+- Connection status indicator
+- Auto-reconnection on disconnect
+- Responsive design
+- Message timestamps
+- User identification
+
+## Setup
+
+1. Install dependencies:
+
+```bash
 yarn install
 ```
 
-### Compiles and hot-reloads for development
-```
+2. Start development server:
+
+```bash
 yarn serve
 ```
 
-### Compiles and minifies for production
-```
+3. Build for production:
+
+```bash
 yarn build
 ```
 
-### Lints and fixes files
-```
-yarn lint
-```
+## WebSocket Integration
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/)
+The app connects to WebSocket using the `/api/getwebsocketurl` endpoint to get the WebSocket URL, then connects using the same origin (`window.location.origin`).
+
+## Project Structure
+
+- `src/App.vue` - Main application component
+- `src/components/ChatApp.vue` - Main chat interface with WebSocket logic
+- `src/main.js` - Vue application entry point
+- `public/index.html` - HTML template
+- `.taubyte/build.sh` - Build script for Taubyte deployment
+
+## Dependencies
+
+- Vue 3
+- Vue CLI Service
+- No additional UI libraries (pure CSS styling)
