@@ -67,18 +67,27 @@ export default {
     async connectWebSocket() {
       try {
         // Get WebSocket URL from the API endpoint
-        const response = await fetch("/api/getwebsocketurl");
+        const response = await fetch(
+          `${window.location.origin}/api/getwebsocketurl`
+        );
 
         let wsUrl;
         if (response.ok) {
           try {
-            // Try to parse as JSON first
-            const data = await response.json();
-            wsUrl = data.url;
-          } catch (jsonError) {
-            // If JSON parsing fails, get the URL from response text
+            // Try to get the URL from response text first (since API returns plain text)
             const text = await response.text();
             wsUrl = text.trim();
+          } catch (textError) {
+            try {
+              // If text parsing fails, try JSON as fallback
+              const data = await response.json();
+              wsUrl = data.url;
+            } catch (jsonError) {
+              console.error(
+                "Failed to parse response as text or JSON:",
+                jsonError
+              );
+            }
           }
         }
 
@@ -95,6 +104,9 @@ export default {
         }
 
         console.log("Connecting to WebSocket:", wsUrl);
+        console.log("Current protocol:", window.location.protocol);
+        console.log("Current host:", window.location.host);
+
         this.websocket = new WebSocket(wsUrl);
 
         this.websocket.onopen = () => {
@@ -123,7 +135,16 @@ export default {
 
         this.websocket.onerror = (error) => {
           console.error("WebSocket error:", error);
+          console.error("WebSocket URL that failed:", wsUrl);
           this.isConnected = false;
+
+          // If it's a security error, try with the same origin
+          if (error.message && error.message.includes("insecure")) {
+            console.log("Attempting fallback connection to same origin...");
+            setTimeout(() => {
+              this.connectWebSocketFallback();
+            }, 1000);
+          }
         };
       } catch (error) {
         console.error("Failed to get WebSocket URL:", error);
@@ -165,6 +186,51 @@ export default {
           console.error("WebSocket error (fallback):", error);
           this.isConnected = false;
         };
+      }
+    },
+
+    connectWebSocketFallback() {
+      try {
+        const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+        const wsUrl = `${protocol}//${window.location.host}/ws`;
+        console.log("Attempting fallback WebSocket connection:", wsUrl);
+
+        this.websocket = new WebSocket(wsUrl);
+
+        this.websocket.onopen = () => {
+          this.isConnected = true;
+          console.log("WebSocket connected (fallback)");
+        };
+
+        this.websocket.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            this.addMessage(
+              data.message || data.text,
+              false,
+              data.username || "Anonymous"
+            );
+          } catch (error) {
+            // Handle plain text messages
+            this.addMessage(event.data, false, "System");
+          }
+        };
+
+        this.websocket.onclose = () => {
+          this.isConnected = false;
+          console.log("WebSocket disconnected (fallback)");
+          // Attempt to reconnect after 3 seconds
+          setTimeout(() => {
+            this.connectWebSocket();
+          }, 3000);
+        };
+
+        this.websocket.onerror = (error) => {
+          console.error("WebSocket error (fallback):", error);
+          this.isConnected = false;
+        };
+      } catch (error) {
+        console.error("Fallback WebSocket connection failed:", error);
       }
     },
 
