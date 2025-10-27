@@ -46,9 +46,9 @@ body {
 #app {
   min-height: 100vh;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
+  justify-content: stretch;
+  align-items: stretch;
+  padding: 0;
 }
 
 /* Add some floating particles effect */

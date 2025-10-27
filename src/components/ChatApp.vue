@@ -384,18 +384,17 @@ export default {
 
 <style scoped>
 .chat-container {
-  width: 95%;
-  max-width: 1600px;
-  height: 80vh;
+  width: 100vw;
+  height: 100vh;
   background: white;
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  border-radius: 0;
+  box-shadow: none;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   position: relative;
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: none;
 }
 
 /* Username Modal */
@@ -410,7 +409,7 @@ export default {
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  border-radius: 12px;
+  border-radius: 0;
 }
 
 .username-modal-content {
@@ -537,14 +536,14 @@ export default {
 }
 
 .message-content {
-  max-width: 75%;
-  padding: 16px 20px;
+  max-width: 85%;
+  padding: 18px 24px;
   border-radius: 20px;
   word-wrap: break-word;
   background: white;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  font-size: 15px;
-  line-height: 1.4;
+  font-size: 16px;
+  line-height: 1.5;
 }
 
 .own-message .message-content {
