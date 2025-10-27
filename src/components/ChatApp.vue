@@ -384,9 +384,9 @@ export default {
 
 <style scoped>
 .chat-container {
-  width: 100%;
-  max-width: 1200px;
-  height: 700px;
+  width: 95%;
+  max-width: 1600px;
+  height: 80vh;
   background: white;
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
@@ -521,7 +521,7 @@ export default {
 
 .chat-messages {
   flex: 1;
-  padding: 24px;
+  padding: 32px 40px;
   overflow-y: auto;
   background: linear-gradient(180deg, #fafafa 0%, #f0f2f5 100%);
 }
@@ -537,8 +537,8 @@ export default {
 }
 
 .message-content {
-  max-width: 60%;
-  padding: 14px 18px;
+  max-width: 75%;
+  padding: 16px 20px;
   border-radius: 20px;
   word-wrap: break-word;
   background: white;
