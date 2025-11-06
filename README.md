@@ -1,4 +1,4 @@
-# Seguente Chat
+# Seguente Chat 
 
 A simple Vue.js chat application with WebSocket communication, branded with 'Seguente'.
 
